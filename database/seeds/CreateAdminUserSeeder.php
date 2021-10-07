@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\User;
+use App\VerifyUser;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -17,7 +18,13 @@ class CreateAdminUserSeeder extends Seeder
         $user = User::create([
             'name' => 'Mohsin', 
             'email' => 'mohsin@gmail.com',
-            'password' => bcrypt('mohsin123')
+            'password' => bcrypt('mohsin123'),
+            'verified' => 1
+        ]);
+
+        $verifyUser = VerifyUser::create([
+            'user_id' => $user->id,
+            'token' => sha1(time())
         ]);
   
         $role = Role::create(['name' => 'Admin']);

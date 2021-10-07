@@ -16,11 +16,11 @@ Route::get('/', function () {
 });
 
 Auth::routes();
-Auth::routes(['verify' => true]);
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/user/verify/{token}', 'Auth\RegisterController@verifyUser');
 
-Route::group(['middleware' => ['auth','verified']], function() {
+Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles','RoleController');
     Route::resource('users','UserController');
     Route::resource('products','ProductController');
