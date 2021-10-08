@@ -114,6 +114,7 @@ class RegisterController extends Controller
     }
 
 
+    #google login functions
     public function redirectToProvider()
     {
         return Socialite::driver('google')->redirect();
@@ -153,4 +154,44 @@ class RegisterController extends Controller
         return redirect('/users');
 
     }
+
+    #facebook login functions
+    public function facebookRedirect($provider)
+    {
+     return Socialite::driver($provider)->redirect();
+    }
+
+    public function facebookCallback($provider)
+    {
+       $getInfo = Socialite::driver($provider)->user(); 
+       $user = $this->createUser($getInfo,$provider); 
+       auth()->login($user); 
+       return redirect()->to('/home');
+     }
+
+    function createUser($getInfo,$provider){
+     $user = User::where('provider_id', $getInfo->id)->first();
+     if (!$user) {
+         //  $user = User::create([
+         //     'name'     => $getInfo->name,
+         //     'email'    => $getInfo->email,
+         //     'provider' => $provider,
+         //     'provider_id' => $getInfo->id
+         // ]);
+
+         //create a new user and provider
+        $user = User::firstOrCreate([
+            'email' =>  $getInfo->getEmail(),
+            'name' =>  $getInfo->getName(),
+            'verified' => 1
+        ]);
+
+        $user->socialProviders()->create(
+            ['provider_id' => $getInfo->id, 'provider' => $provider]
+        );
+
+
+       }
+       return $user;
+     }
 }

@@ -26,6 +26,10 @@ Route::get('/user/verify/{token}', 'Auth\RegisterController@verifyUser');
 Route::get('auth/google', 'Auth\RegisterController@redirectToProvider');
 Route::get('auth/google/callback', 'Auth\RegisterController@handleProviderCallback');
 
+//facebook login routes
+Route::get('/auth/redirect/{provider}', 'Auth\RegisterController@facebookRedirect');
+Route::get('auth/callback/{provider}', 'Auth\RegisterController@facebookCallback');
+
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles','RoleController');
     Route::resource('users','UserController');
