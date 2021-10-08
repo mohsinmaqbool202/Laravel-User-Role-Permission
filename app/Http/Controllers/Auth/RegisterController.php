@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use Socialite;
 use App\VerifyUser;
+use App\SocialProvider;
 use Mail;
 use App\Mail\VerifyMail;
 use App\Http\Controllers\Controller;
@@ -109,5 +111,46 @@ class RegisterController extends Controller
     {
       $this->guard()->logout();
       return redirect('/login')->with('status', 'We sent you an activation code. Check your email and click on the link to verify.');
+    }
+
+
+    public function redirectToProvider()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleProviderCallback()
+    {
+        try
+        {
+            $socialUser = Socialite::driver('google')->user();
+        }
+        catch(\Exception $e)
+        {
+            return redirect('/');
+        }
+        //check if we have logged provider
+        $socialProvider = SocialProvider::where('provider_id',$socialUser->getId())->first();
+        if(!$socialProvider)
+        {
+            //create a new user and provider
+            $user = User::firstOrCreate([
+                'email' => $socialUser->getEmail(),
+                'name' => $socialUser->getName(),
+                'verified' => 1
+            ]);
+
+            $user->socialProviders()->create(
+                ['provider_id' => $socialUser->getId(), 'provider' => 'google']
+            );
+
+        }
+        else
+            $user = $socialProvider->user;
+
+        auth()->login($user);
+
+        return redirect('/users');
+
     }
 }

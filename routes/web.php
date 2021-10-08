@@ -18,7 +18,13 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+//user email verification route
 Route::get('/user/verify/{token}', 'Auth\RegisterController@verifyUser');
+
+//goole login routes
+Route::get('auth/google', 'Auth\RegisterController@redirectToProvider');
+Route::get('auth/google/callback', 'Auth\RegisterController@handleProviderCallback');
 
 Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles','RoleController');

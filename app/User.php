@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'verified'
     ];
 
     /**
@@ -42,5 +42,10 @@ class User extends Authenticatable
     public function verifyUser()
     {
       return $this->hasOne('App\VerifyUser');
+    }
+
+    function socialProviders()
+    {
+        return $this->hasMany(SocialProvider::class);
     }
 }
