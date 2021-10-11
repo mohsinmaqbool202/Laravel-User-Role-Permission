@@ -20,7 +20,10 @@ class PermissionTableSeeder extends Seeder
            'product-list',
            'product-create',
            'product-edit',
-           'product-delete'
+           'product-delete',
+           'store-multiple-images',
+           'delete-image'
+
         ];
 
 

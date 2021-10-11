@@ -4,17 +4,23 @@ namespace App\Http\Controllers;
 
 
 use App\Product;
+use App\ProductImages;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Input;
+
 
 class ProductController extends Controller
 {
 
      function __construct()
     {
-         $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:product-create', ['only' => ['create','store']]);
-         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:product-list|product-create|product-edit|product-delete|store-multiple-images', ['only' => ['index','show']]);
+        $this->middleware('permission:product-create', ['only' => ['create','store']]);
+        $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:store-multiple-images', ['only' => ['storeMultipleImages']]);
+        $this->middleware('permission:delete-image', ['only' => ['deleteImage']]);
+
     }
 
 
@@ -51,12 +57,35 @@ class ProductController extends Controller
     {
         request()->validate([
             'name' => 'required',
-            'detail' => 'required',
+            'code' => 'required',
+            'color' => 'required',
+            'price' => 'required',
         ]);
 
+        $data = $request->all();
 
-        Product::create($request->all());
+        #check if status is empty or not
+        if(!empty($data['status'])){
+           $data['status'] = 1;
+        }
+        else{
+            $data['status'] = 0;
+        }
 
+        #image save
+        if($request->hasFile('image')) {
+            $image_temp = Input::file('image');
+            if($image_temp->isValid())
+            {
+                $extension = $image_temp->getClientOriginalExtension();
+                $file_name = rand(111,99999). '.'. $extension;
+                $image_temp->move(public_path('images/backend_images/products'),$file_name);
+                $data['image'] = $file_name;
+            }
+        }
+        
+        #now save data in DB
+        Product::create($data);
         return redirect()->route('products.index')
                         ->with('success','Product created successfully.');
     }
@@ -118,5 +147,58 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')
                         ->with('success','Product deleted successfully');
+    }
+
+
+    public function storeMultipleImages(Request $request, $product_id)
+    {
+        $product = Product::find($product_id);
+        if(!$product){
+            abort(404);
+        }
+        $productImages = $product->images;
+
+        #post request
+        if ($request->isMethod('post'))
+        {
+            $this->validate($request, [
+                'images' => 'required',
+                // 'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            ]);
+
+            #store images in DB
+            if($request->hasfile('images'))
+            {
+
+                foreach($request->file('images') as $image)
+                {
+                    $extension = $image->getClientOriginalExtension();
+                    $file_name = rand(111,99999). '.'. $extension;
+                    $image->move(public_path('images/backend_images/products'),$file_name);
+                    $img_arr[] = $file_name;
+
+                    $p_img = new ProductImages;
+                    $p_img->product_id = $product_id;
+                    $p_img->image      = $file_name;
+                    $p_img->save();
+                }
+            }
+
+            return redirect()->route('product.store-multiple-images', $product_id)->with('success', 'Your images has been added successfully');
+        }
+
+        #get request
+        return view('products.add_images', compact('product_id','productImages'));
+    }
+
+    public function deleteImage($id)
+    {
+        $image = ProductImages::find($id);
+        if(!$image){
+            abort(404);
+        }
+
+        $image->delete();
+        return back()->with('success', 'Image has been deleted.');
     }
 }

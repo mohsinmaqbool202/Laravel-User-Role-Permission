@@ -31,7 +31,11 @@ Route::get('/auth/redirect/{provider}', 'Auth\RegisterController@facebookRedirec
 Route::get('auth/callback/{provider}', 'Auth\RegisterController@facebookCallback');
 
 Route::group(['middleware' => ['auth']], function() {
+
     Route::resource('roles','RoleController');
     Route::resource('users','UserController');
+    Route::match(['get','post'], 'products/store-multiple-images/{product_id}', 'ProductController@storeMultipleImages')->name('product.store-multiple-images');
+    Route::get('products/delete-image/{id}','ProductController@deleteImage')->name('products.delete-image');
     Route::resource('products','ProductController');
+
 });

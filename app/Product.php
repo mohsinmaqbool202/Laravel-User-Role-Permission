@@ -8,6 +8,17 @@ class Product extends Model
 {
    
     protected $fillable = [
-        'name', 'detail'
+        'name',
+        'code',
+        'color',
+        'price', 
+        'detail',
+        'image',
+        'status'
     ];
+
+    public function images()
+    {
+        return $this->hasMany('App\ProductImages');
+    }
 }

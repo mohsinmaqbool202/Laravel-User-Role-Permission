@@ -61,12 +61,7 @@ class RegisterController extends Controller
         ]);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\User
-     */
+    #verify user with email functions
     protected function create(array $data)
     {
         $user = User::create([
@@ -104,7 +99,6 @@ class RegisterController extends Controller
             return redirect('/login')->with('warning', "Sorry your email cannot be identified.");
         }
         return redirect('/login')->with('status', $status);
-
     }
 
     protected function registered(Request $request, $user)
@@ -152,13 +146,12 @@ class RegisterController extends Controller
         auth()->login($user);
 
         return redirect('/users');
-
     }
 
     #facebook login functions
     public function facebookRedirect($provider)
     {
-     return Socialite::driver($provider)->redirect();
+        return Socialite::driver($provider)->redirect();
     }
 
     public function facebookCallback($provider)
@@ -167,31 +160,25 @@ class RegisterController extends Controller
        $user = $this->createUser($getInfo,$provider); 
        auth()->login($user); 
        return redirect()->to('/home');
-     }
+    }
 
-    function createUser($getInfo,$provider){
-     $user = User::where('provider_id', $getInfo->id)->first();
-     if (!$user) {
-         //  $user = User::create([
-         //     'name'     => $getInfo->name,
-         //     'email'    => $getInfo->email,
-         //     'provider' => $provider,
-         //     'provider_id' => $getInfo->id
-         // ]);
+    function createUser($getInfo,$provider)
+    {
+        $user = SocialProvider::where('provider_id', $getInfo->id)->first();
+        if (!$user)
+        {
 
-         //create a new user and provider
-        $user = User::firstOrCreate([
-            'email' =>  $getInfo->getEmail(),
-            'name' =>  $getInfo->getName(),
-            'verified' => 1
-        ]);
+            #create a new user and provider
+            $user = User::firstOrCreate([
+                'email' =>  $getInfo->getEmail(),
+                'name' =>  $getInfo->getName(),
+                'verified' => 1
+            ]);
 
-        $user->socialProviders()->create(
-            ['provider_id' => $getInfo->id, 'provider' => $provider]
-        );
-
-
-       }
+            $user->socialProviders()->create(
+                ['provider_id' => $getInfo->id, 'provider' => $provider]
+            );
+        }
        return $user;
-     }
+    }
 }

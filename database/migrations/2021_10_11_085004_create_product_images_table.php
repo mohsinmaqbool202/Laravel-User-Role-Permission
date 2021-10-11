@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateVerifyUsersTable extends Migration
+class CreateProductImagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateVerifyUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('verify_users', function (Blueprint $table) {
-            $table->integer('user_id')->unsigned();
-            $table->string('token');
+        Schema::create('product_images', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->integer('product_id')->unsigned()->references('id')->on('products');
+            $table->string('image');
             $table->timestamps();
-
         });
     }
 
@@ -28,6 +28,6 @@ class CreateVerifyUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('verify_users');
+        Schema::dropIfExists('product_images');
     }
 }
