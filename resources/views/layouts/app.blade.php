@@ -13,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset( 'css/frontend_css/dropzone.min.css') }}" rel="stylesheet">
+    
 
     <!-- jquery -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
@@ -77,6 +79,7 @@
         </main>
     </div>
 
+   <script src="{{ asset( 'js/frontend_js/dropzone.min.js') }}"></script>
     @yield('js_script');
 </body>
 </html>

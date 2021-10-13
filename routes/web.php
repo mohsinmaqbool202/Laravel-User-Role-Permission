@@ -11,7 +11,9 @@
 |
 */
 
-Route::get('/', function () {
+
+#Admin side routes
+Route::get('admin-login', function () {
     return view('welcome');
 });
 
@@ -39,3 +41,35 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('products','ProductController');
 
 });
+
+
+
+#user/customer side routes
+
+#Home Page Routes
+Route::get('/', 'IndexController@index');
+
+#Product detail page
+Route::get('product/{id}', 'IndexController@productDetail')->name('product.detail');
+
+#user register /login page
+Route::get('/login-register', 'CustomerController@customerLoginRegister')->name('login.register');
+
+#register form submit
+Route::post('/customer-register', 'CustomerController@register');
+
+#activate account 
+Route::get('/confirm/{code}', 'CustomerController@confirmAccount');
+
+#user login route
+Route::post('/customer-login', 'CustomerController@login');
+
+#user logout route
+Route::get('/customer-logout', 'CustomerController@logout');
+
+#add to whishlist
+Route::get('/add-to-wishlist', 'IndexController@addToWishList');
+Route::get('/wish-list', 'IndexController@viewWishList');
+Route::get('/delete-wish/{id}', 'IndexController@deleteWishList');
+
+

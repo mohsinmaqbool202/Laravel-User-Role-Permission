@@ -20,7 +20,6 @@ class ProductController extends Controller
         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
         $this->middleware('permission:store-multiple-images', ['only' => ['storeMultipleImages']]);
         $this->middleware('permission:delete-image', ['only' => ['deleteImage']]);
-
     }
 
 
@@ -32,7 +31,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::latest()->paginate(5);
-        return view('products.index',compact('products'))
+        return view('admin.products.index',compact('products'))
             ->with('i', (request()->input('page', 1) - 1) * 5);
 
     }
@@ -44,7 +43,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        return view('admin.products.create');
     }
 
     /**
@@ -98,7 +97,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-         return view('products.show',compact('product'));
+         return view('admin.products.show',compact('product'));
     }
 
     /**
@@ -109,7 +108,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return view('products.edit',compact('product'));
+        return view('admin.products.edit',compact('product'));
     
     }
 
@@ -188,7 +187,7 @@ class ProductController extends Controller
         }
 
         #get request
-        return view('products.add_images', compact('product_id','productImages'));
+        return view('admin.products.add_images', compact('product_id','product','productImages'));
     }
 
     public function deleteImage($id)

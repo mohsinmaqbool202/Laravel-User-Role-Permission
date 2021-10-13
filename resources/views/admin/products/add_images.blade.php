@@ -5,7 +5,7 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
-            <h2>Add Product Images</h2>
+            <h2>Add Images for <i class="text-primary">{{ $product->name }}</i></h2>
         </div>
         <div class="text-right" style="margin-bottom: 5px;">
             <a class="btn btn-primary" href="{{ route('products.index') }}"> Back</a>
