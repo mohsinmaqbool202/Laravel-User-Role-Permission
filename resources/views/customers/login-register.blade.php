@@ -31,12 +31,8 @@
 						{{ csrf_field() }}
 						<input type="email" name="email" placeholder="Email Address" />
 						<input type="password" name="password" placeholder="Password" />
-						<!-- <span>
-							<input type="checkbox" class="checkbox"> 
-							Keep me signed in
-						</span> -->
 						<button type="submit" class="btn btn-default">Login</button><br>
-						<a href="{{ url('forgot-password') }}">Forgot Password?</a>
+						<!-- <a href="#">Forgot Password?</a> -->
 					</form>
 				</div><!--/login form-->
 			</div>

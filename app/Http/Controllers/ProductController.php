@@ -123,7 +123,9 @@ class ProductController extends Controller
     {
         request()->validate([
             'name' => 'required',
-            'detail' => 'required',
+            'code' => 'required',
+            'color' => 'required',
+            'price' => 'required',
         ]);
 
 

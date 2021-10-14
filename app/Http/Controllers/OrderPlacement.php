@@ -1,0 +1,274 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Product;
+use Session;
+use App\Cart;
+use App\Customer;
+use App\DeliveryAddress;
+use App\Order;
+use App\OrderProduct;
+use Mail;
+
+class OrderPlacement extends Controller
+{
+    public function addtocart(Request $request)
+    {
+        #Check if Requested Quantity is available in stock or not
+        $checkStock = Product::where('id',$request->product_id)->first();
+
+        if($request->quantity > $checkStock->stock)
+        {
+            return back()->with('flash_message_error', 'Sorry! Required quantity is not available.');
+        }
+
+        #Saving session_id to Session
+        $session_id = Session::get('session_id');
+        
+        if(Session::has('session_id')){
+            $request["session_id"] = $session_id;
+            Session::put('session_id', $request["session_id"]);
+        }
+        else{
+            $request["session_id"]  = str_random(40);    
+            Session::put('session_id', $request["session_id"]);
+        }
+
+        #Check if same product is already present in cart with same size and same session _id
+        $checkCart = Cart::where('product_id', $request->product_id)->where('session_id',$session_id)->count();
+
+        if($checkCart > 0){
+            return back()->with('flash_message_error', 'Product already exist in cart.');
+        }
+        else{
+            Cart::create($request->all());
+            return redirect('/cart')->with('flash_message_success', 'Product added to cart.');
+        }
+    }
+
+    public function cart()
+    {
+        $session_id = Session::get('session_id');
+        $userCart = Cart::where('session_id', $session_id)->get();
+        return view('products.cart', compact('userCart'));
+    }
+
+    public function deleteCartProduct($cart_id)
+    {
+        $cart = Cart::find($cart_id);
+        if(!$cart){
+            abort(404);
+        }
+
+        $cart->delete();
+        return back()->with('flash_message_success', 'Product deleted from cart.');
+    }
+
+    public function updateCartQuantity($id, $quantity)
+    {
+        $getCartDetails = Cart::find($id);
+        $ProductStock = Product::where('id', $getCartDetails->product_id)->value('stock');
+        
+        $updated_quantity = $getCartDetails->quantity + $quantity;
+        if($ProductStock >= $updated_quantity)
+        {
+            Cart::where('id', $id)->increment('quantity', $quantity);
+            return back();
+        }
+        else
+        {
+            return redirect('/cart')->with('flash_message_error','Required quantity is not available');
+        }   
+    }
+
+    public function checkout(Request $request)
+    {
+        $email = Session::get('customerSession');
+        $customer = Customer::where('email', $email)->first();
+        
+        //check if shipping address already exist
+        $shipping_address = DeliveryAddress::where('customer_id', $customer->id)->first();
+
+         //For post Request
+        if($request->isMethod('post'))
+        {
+            $this->validate($request, [
+
+                'billing_name'        => 'required',
+                'billing_address'     => 'required',
+                'billing_city'        => 'required',
+                'billing_state'       => 'required',
+                'billing_pincode'     => 'required',
+                'billing_mobile'      => 'required',
+                'shipping_name'       => 'required',
+                'shipping_address'    => 'required',
+                'shipping_city'       => 'required',
+                'shipping_state'      => 'required',
+                'shipping_pincode'    => 'required',
+                'shipping_mobile'     => 'required',
+
+            ]);
+
+            //update customer table with billing address data
+            Customer::where('id', $customer->id)->update([
+                                                       'name'=> $request->billing_name, 
+                                                       'address'=>$request->billing_address, 
+                                                       'city'=> $request->billing_city, 
+                                                       'state'=> $request->billing_state, 
+                                                       'pincode'=>$request->billing_pincode, 
+                                                       'mobile'=>$request->billing_mobile
+                                                    ]);
+
+            
+            //Now Insert Shipping data to delivery_address table
+            if($shipping_address !=''){
+              //update record
+            DeliveryAddress::where('customer_id', $customer->id)->update([
+                                                        'name'=> $request->shipping_name, 
+                                                        'address'=>$request->shipping_address, 
+                                                        'city'=> $request->shipping_city, 
+                                                        'state'=> $request->shipping_state, 
+                                                        'pincode'=>$request->shipping_pincode, 
+                                                        'mobile'=>$request->shipping_mobile
+                                                    ]);
+            }
+            else{
+                $new_address = new DeliveryAddress;
+                $new_address->customer_id     = $customer->id;
+                $new_address->customer_email  = $customer->email;
+                $new_address->name        = $request->shipping_name;
+                $new_address->address     = $request->shipping_address;
+                $new_address->city        = $request->shipping_city;
+                $new_address->state       = $request->shipping_state;
+                $new_address->pincode     = $request->shipping_pincode;
+                $new_address->mobile      = $request->shipping_mobile;
+                $new_address->save();  
+            }
+
+             //check pincode
+            // $pincodeCount = DB::table('pincodes')->where('pincode', $request->shipping_pincode)->count();
+            // if($pincodeCount == 0){
+            //   return redirect()->back()->with('flash_message_error', 'Your location/pincode is not available for delivery, Please choose valid pincode');
+            // }
+            
+            return redirect('/order-review');
+        } 
+        
+        return view('products.checkout', compact('customer', 'shipping_address'));
+    }
+
+    public function orderReview()
+    {
+        $email = Session::get('customerSession');
+        $customer = Customer::where('email', $email)->first();
+
+        #shipping address
+        $shipping_address = DeliveryAddress::where('customer_id', $customer->id)->first();
+
+        #cart items
+        $session_id = Session::get('session_id');
+        $customerCart = Cart::where('session_id', $session_id)->get();
+
+        return view('products.order_review', compact('customer', 'shipping_address', 'customerCart'));
+    }
+
+    public function placeOrder(Request $request)
+    {
+        if($request->isMethod('post'))
+        {
+          $data = $request->all();
+          $email = Session::get('customerSession');
+          $customer = Customer::where('email', $email)->first();
+          $session_id = Session::get('session_id');
+
+          #prevent user from ordering out of stock products
+          $customerCart = Cart::where('session_id', $session_id)->get();
+          
+          foreach($customerCart as $cart){
+
+            $product_stock = Product::getProductStock($cart->product_id);
+
+            if($product_stock == 0 && $product_stock != null)
+            {
+              Product::deleteProductFromCart($cart->product_code, $session_id, $product_id = '');
+              return redirect('/cart')->with('flash_message_error', 'Some of the product is out of stock as some other customer has perchased it before you, please update your cart with some other product!');
+            }
+            if($cart->quantity > $product_stock && $product_stock != null){
+               return redirect('/cart')->with('flash_message_error', 'Your demanded quantity is more than product stock, please update your cart!');
+            }
+
+            // prevent user from ordering disabled products
+            $product_status = Product::getProductStatus($cart->product_id);
+            if($product_status == 0){
+              Product::deleteProductFromCart($cart->product_code,$session_id,$cart->product_id);
+              return redirect('/cart')->with('flash_message_error', 'Disabled product removed from cart, please update your cart again!');
+            }
+
+          }
+
+          
+          // $request['grand_total'] = Product::getGrandTotal();
+          Session::put('grand_total', $request['grand_total']);
+
+          $order = new Order;
+          $order->customer_id      = $customer->id;
+          // $order->shipping_charges = $request->shipping_charges;
+          // $order->coupon_code      = $request->coupon_code;
+          // $order->coupon_amount    = $request->coupon_amount;
+          $order->payment_method   = $request->payment_method;
+          $order->grand_total      = $request['grand_total'];
+          $order->save();
+
+          //saving order_product data
+          $cart_data = Cart::where('session_id', Session::get('session_id'))->get();
+           foreach($cart_data as $cart){
+            $order_product           = new OrderProduct;
+            $order_product->order_id = $order->id;
+            $order_product->customer_id  = $customer->id;
+            $order_product->cart_id  = $cart->id;
+            $order_product->save();
+            
+            //update product stock
+            $old_stock = Product::where('id',$cart->product_id)->first();
+            $new_stock = $old_stock->stock - $cart->quantity;
+            if($new_stock < 0){
+              $new_stock = 0;
+            }
+            Product::where('id',$old_stock->id)->update(['stock'=>$new_stock]);
+           }
+
+           //removin session values
+           Session::forget('session_id');
+
+           Session::put('order_id', $order->id);
+           Session::put('grand_total', $request->grand_total);
+
+           if($data['payment_method'] == 'COD'){
+            /* code for order email start */
+             $orderDetail = Order::with('orders')->where('id', $order->id)->first();
+
+             $email = $customer->email;
+             $messageData = [
+                'email'          => $customer->email,
+                'name'           => $customer->name,
+                'order_id'       => $order->id,
+                'user'           => $customer,
+                'orderDetail'    => $orderDetail,
+             ];
+
+             Mail::send('emails.order', $messageData, function($message) use($email){
+              $message->to($email)->subject('Order Placed');
+             });
+            /* code for order email ends */
+            //redirect user to thanks page after saving order
+            return 'your order has placed';
+           }
+           else{
+            //redirect user to paypal page after saving order -remains to do
+            return redirect('/paypal');
+           }
+        }
+    }
+}

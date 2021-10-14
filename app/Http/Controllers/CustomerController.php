@@ -8,6 +8,7 @@ use Auth;
 use Session;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use App\Cart;
 
 class CustomerController extends Controller
 {
@@ -83,15 +84,22 @@ class CustomerController extends Controller
             $data = $request->input();
             $customer_status = Customer::where('email', $data['email'])->first();
             
-            if($customer_status->verified == 0){
-            return back()->with('flash_message_error', 'Your account is not active ! please confirm your email to activate your account.');
-           }
+            if($customer_status->verified == 0)
+            {
+                return back()->with('flash_message_error', 'Your account is not active ! please confirm your email to activate your account.');
+            }
 
-           $customerCount = Customer::where(['email'=> $data['email'], 'password'=> md5($data['password'])])->count();
-           if($customerCount > 0){
-                
+            $customerCount = Customer::where(['email'=> $data['email'], 'password'=> md5($data['password'])])->count();
+
+           if($customerCount > 0)
+           {
                 Session::put('customerSession', $data['email']);
-                return redirect('/');
+                if(Session::has('session_id'))
+                {
+                    $session_id = Session::get('session_id');
+                    Cart::where('session_id', $session_id)->update(['user_email'=>$data['email']]);
+                }
+                return redirect('/cart');
             }
             else{
                 return back()->with('flash_message_error', 'Invalid Username or Password.');

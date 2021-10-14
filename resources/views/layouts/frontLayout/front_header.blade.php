@@ -1,3 +1,9 @@
+<?php
+  use App\Http\Controllers\Controller;
+  use App\Cart;
+
+  $cartCount = Cart::cartCount();
+?>
 <header id="header"><!--header-->
 		<div class="header_top"><!--header_top-->
 			<div class="container">
@@ -32,6 +38,7 @@
 					<div class="col-md-8 clearfix">
 						<div class="shop-menu clearfix pull-right">
 							<ul class="nav navbar-nav">
+								<li><a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i> Cart ({{$cartCount}})</a></li>
 								@if(Session::get('customerSession') != null)
 								<!-- <li><a href="{{ url('/account') }}"><i class="fa fa-user"></i> Account</a></li> -->
 								<li><a href="{{url('/wish-list')}}"><i class="fa fa-star"></i> Wishlist</a></li>

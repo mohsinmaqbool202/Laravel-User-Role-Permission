@@ -60,19 +60,25 @@
         <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
+                    <strong>Stock:</strong>
+                    <input type="text" name="stock" class="form-control" placeholder="Price">
+                </div>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group">
                     <strong>Image:</strong>
                     <input type="file" class="form-control-file" name="image">
                 </div>
             </div>
+        </div>
+        <div class="row">
             <div class="col-xs-6 col-sm-6 col-md-6" style="margin-top: 19px;">
                 <div class="form-group form-check">
                     <input type="checkbox" class="form-check-input" name="status">
                     <label class="form-check-label">Enable Product</label>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-xs-6 col-sm-6 col-md-6">
                 <div class="form-group">
                     <strong>Detail:</strong>
                     <textarea class="form-control" style="height:100px" name="detail" placeholder="Detail"></textarea>

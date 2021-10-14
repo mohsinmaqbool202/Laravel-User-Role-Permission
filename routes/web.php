@@ -67,9 +67,32 @@ Route::post('/customer-login', 'CustomerController@login');
 #user logout route
 Route::get('/customer-logout', 'CustomerController@logout');
 
-#add to whishlist
-Route::get('/add-to-wishlist', 'IndexController@addToWishList');
-Route::get('/wish-list', 'IndexController@viewWishList');
-Route::get('/delete-wish/{id}', 'IndexController@deleteWishList');
+#Add-to-cart routes
+Route::post('/add-to-cart', 'OrderPlacement@addtocart')->name('add.cart');
+
+#cart page route
+Route::match(['get', 'post'], '/cart', 'OrderPlacement@cart');
+
+#Delete cart items route
+Route::get('/cart/delete-product/{id}', 'OrderPlacement@deleteCartProduct');
+
+#update product quantity in cart
+Route::get('/cart/upadte-quantity/{id}/{quantity}', 'OrderPlacement@updateCartQuantity');
+
+
+Route::group(['middleware' => ['frontlogin']], function(){
+
+    #add to whishlist
+    Route::get('/add-to-wishlist', 'IndexController@addToWishList');
+    Route::get('/wish-list', 'IndexController@viewWishList');
+    Route::get('/delete-wish/{id}', 'IndexController@deleteWishList');
+
+    #checkout page
+    Route::match(['get','post'], '/checkout', 'OrderPlacement@checkout');
+    #order review 
+    Route::get('/order-review', 'OrderPlacement@orderReview');
+    #place order
+    Route::match(['get','post'], '/place-order', 'OrderPlacement@placeOrder');
+});
 
 
