@@ -39,10 +39,7 @@
 						<form name="addtocartForm" id="addtocartForm" action="{{ route('add.cart') }}" method="post">
 							{{ csrf_field() }}
 							<input type="hidden" name="product_id"    value="{{ $productDetail->id }}">
-							<input type="hidden" name="product_name"  value="{{ $productDetail->name }}">
-							<input type="hidden" name="product_code"  value="{{ $productDetail->code }}">
-							<input type="hidden" name="product_color" value="{{ $productDetail->color }}">
-							<input type="hidden" name="product_price" id="product_price" value="{{ $productDetail->price }}">
+							<input type="hidden" name="user_email"    value="{{Session::get('customerSession')}}">
 							<div class="product-information"><!--/product-information-->
 								<img src="images/product-details/new.jpg" class="newarrival" alt="" />
 								<h2>{{ $productDetail->name }}</h2>

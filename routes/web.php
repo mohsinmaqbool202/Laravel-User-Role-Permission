@@ -82,6 +82,12 @@ Route::get('/cart/upadte-quantity/{id}/{quantity}', 'OrderPlacement@updateCartQu
 
 Route::group(['middleware' => ['frontlogin']], function(){
 
+    #user account page
+    Route::match(['get', 'post'], '/account', 'CustomerController@account')->name('account.setting');
+    #update user pwd
+    Route::get('/check-customer-pwd', 'CustomerController@checkUserPwd');
+    Route::post('/update-customer-pwd', 'CustomerController@updatePassword');
+
     #add to whishlist
     Route::get('/add-to-wishlist', 'IndexController@addToWishList');
     Route::get('/wish-list', 'IndexController@viewWishList');
@@ -93,6 +99,8 @@ Route::group(['middleware' => ['frontlogin']], function(){
     Route::get('/order-review', 'OrderPlacement@orderReview');
     #place order
     Route::match(['get','post'], '/place-order', 'OrderPlacement@placeOrder');
+    #View customer orders
+    Route::get('/orders', 'OrderPlacement@customerOrders');
 });
 
 

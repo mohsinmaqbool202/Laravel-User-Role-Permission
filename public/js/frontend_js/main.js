@@ -34,6 +34,7 @@ $(document).ready(function () {
 
 //add item to whislist
 $(document).ready(function(){
+
     $(".addToWishList").click(function(){
 
         var form_data = $(this).closest(".wishlist_form").serializeArray();
@@ -90,5 +91,24 @@ $(document).ready(function(){
         }
     });
 
+    //check customer current pwd
+    $('#new_pwd').keydown(function(){
+        var current_pwd = $('#current_pwd').val();
+        $.ajax({
+            type:'get',
+            url:'/check-customer-pwd',
+            data:{current_pwd:current_pwd},
+            success:function(resp){
+                if(resp == "false"){
+                    $('#chkPwd').html("<font color='red'>Current Password is Incorrect.</font>");
+                }else if(resp == "true"){
+                    $('#chkPwd').html("<font color='green'>Current Password is Correct.</font>");
+                }
+            },error:function()
+            {
+                alert("error");
+            }
+        });
+    });
 
 });

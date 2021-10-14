@@ -40,7 +40,8 @@
 							<ul class="nav navbar-nav">
 								<li><a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i> Cart ({{$cartCount}})</a></li>
 								@if(Session::get('customerSession') != null)
-								<!-- <li><a href="{{ url('/account') }}"><i class="fa fa-user"></i> Account</a></li> -->
+								<li><a href="{{url('/orders')}}"><i class="fa fa-crosshairs"></i> Orders</a></li>
+								<li><a href="{{ route('account.setting') }}"><i class="fa fa-user"></i> Account</a></li>
 								<li><a href="{{url('/wish-list')}}"><i class="fa fa-star"></i> Wishlist</a></li>
 								<li><a href="{{ url('/customer-logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
 								@else
@@ -68,31 +69,9 @@
 						<div class="mainmenu pull-left">
 							<ul class="nav navbar-nav collapse navbar-collapse">
 								<li><a href="{{ url('/') }}" class="active"></a></li>
-								<!-- <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
-                                    <ul role="menu" class="sub-menu">
-                                        <li><a href="shop.html">Products</a></li>
-										<li><a href="product-details.html">Product Details</a></li> 
-										<li><a href="checkout.html">Checkout</a></li> 
-										<li><a href="cart.html">Cart</a></li> 
-										<li><a href="login.html">Login</a></li> 
-                                    </ul>
-                                </li>  -->
-								<!-- <li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
-                                    <ul role="menu" class="sub-menu">
-                                        <li><a href="blog.html">Blog List</a></li>
-										<li><a href="blog-single.html">Blog Single</a></li>
-                                    </ul>
-                                </li> 
-								<li><a href="404.html">404</a></li>
-								<li><a href="contact-us.html">Contact</a></li> -->
 							</ul>
 						</div>
 					</div>
-					<!-- <div class="col-sm-3">
-						<div class="search_box pull-right">
-							<input type="text" placeholder="Search"/>
-						</div>
-					</div> -->
 				</div>
 			</div>
 		</div><!--/header-bottom-->

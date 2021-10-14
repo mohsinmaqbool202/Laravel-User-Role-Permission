@@ -178,52 +178,50 @@ class OrderPlacement extends Controller
     {
         if($request->isMethod('post'))
         {
-          $data = $request->all();
-          $email = Session::get('customerSession');
-          $customer = Customer::where('email', $email)->first();
-          $session_id = Session::get('session_id');
+            $data = $request->all();
+            $email = Session::get('customerSession');
+            $customer = Customer::where('email', $email)->first();
+            $session_id = Session::get('session_id');
 
-          #prevent user from ordering out of stock products
-          $customerCart = Cart::where('session_id', $session_id)->get();
+            #prevent user from ordering out of stock products
+            $customerCart = Cart::where('session_id', $session_id)->get();
           
-          foreach($customerCart as $cart){
+            foreach($customerCart as $cart){
 
-            $product_stock = Product::getProductStock($cart->product_id);
+                $product_stock = Product::getProductStock($cart->product_id);
 
-            if($product_stock == 0 && $product_stock != null)
-            {
-              Product::deleteProductFromCart($cart->product_code, $session_id, $product_id = '');
-              return redirect('/cart')->with('flash_message_error', 'Some of the product is out of stock as some other customer has perchased it before you, please update your cart with some other product!');
+                if($product_stock == 0 && $product_stock != null)
+                {
+                    Product::deleteProductFromCart($cart->product_code, $session_id, $product_id = '');
+                    return redirect('/cart')->with('flash_message_error', 'Some of the product is out of stock as some other customer has perchased it before you, please update your cart with some other product!');
+                }
+                if($cart->quantity > $product_stock && $product_stock != null){
+                    return redirect('/cart')->with('flash_message_error', 'Your demanded quantity is more than product stock, please update your cart!');
+                }
+
+                // prevent user from ordering disabled products
+                $product_status = Product::getProductStatus($cart->product_id);
+                if($product_status == 0){
+                     Product::deleteProductFromCart($cart->product_code,$session_id,$cart->product_id);
+                    return redirect('/cart')->with('flash_message_error', 'Disabled product removed from cart, please update your cart again!');
+                }
             }
-            if($cart->quantity > $product_stock && $product_stock != null){
-               return redirect('/cart')->with('flash_message_error', 'Your demanded quantity is more than product stock, please update your cart!');
-            }
+      
+            // $request['grand_total'] = Product::getGrandTotal();
+            Session::put('grand_total', $request['grand_total']);
 
-            // prevent user from ordering disabled products
-            $product_status = Product::getProductStatus($cart->product_id);
-            if($product_status == 0){
-              Product::deleteProductFromCart($cart->product_code,$session_id,$cart->product_id);
-              return redirect('/cart')->with('flash_message_error', 'Disabled product removed from cart, please update your cart again!');
-            }
+            $order = new Order;
+            $order->customer_id      = $customer->id;
+            // $order->shipping_charges = $request->shipping_charges;
+            // $order->coupon_code      = $request->coupon_code;
+            // $order->coupon_amount    = $request->coupon_amount;
+            $order->payment_method   = $request->payment_method;
+            $order->grand_total      = $request['grand_total'];
+            $order->save();
 
-          }
-
-          
-          // $request['grand_total'] = Product::getGrandTotal();
-          Session::put('grand_total', $request['grand_total']);
-
-          $order = new Order;
-          $order->customer_id      = $customer->id;
-          // $order->shipping_charges = $request->shipping_charges;
-          // $order->coupon_code      = $request->coupon_code;
-          // $order->coupon_amount    = $request->coupon_amount;
-          $order->payment_method   = $request->payment_method;
-          $order->grand_total      = $request['grand_total'];
-          $order->save();
-
-          //saving order_product data
-          $cart_data = Cart::where('session_id', Session::get('session_id'))->get();
-           foreach($cart_data as $cart){
+            //saving order_product data
+            $cart_data = Cart::where('session_id', Session::get('session_id'))->get();
+            foreach($cart_data as $cart){
             $order_product           = new OrderProduct;
             $order_product->order_id = $order->id;
             $order_product->customer_id  = $customer->id;
@@ -239,30 +237,31 @@ class OrderPlacement extends Controller
             Product::where('id',$old_stock->id)->update(['stock'=>$new_stock]);
            }
 
-           //removin session values
-           Session::forget('session_id');
+            //removin session values
+            Session::forget('session_id');
 
-           Session::put('order_id', $order->id);
-           Session::put('grand_total', $request->grand_total);
+            Session::put('order_id', $order->id);
+            Session::put('grand_total', $request->grand_total);
 
-           if($data['payment_method'] == 'COD'){
-            /* code for order email start */
-             $orderDetail = Order::with('orders')->where('id', $order->id)->first();
+            if($data['payment_method'] == 'COD'){
+           
+            #
+            $orderDetail = Order::with('orders')->where('id', $order->id)->first();
 
-             $email = $customer->email;
-             $messageData = [
+            $email = $customer->email;
+            $messageData = [
                 'email'          => $customer->email,
                 'name'           => $customer->name,
                 'order_id'       => $order->id,
-                'user'           => $customer,
+                'customer'           => $customer,
                 'orderDetail'    => $orderDetail,
-             ];
+            ];
 
-             Mail::send('emails.order', $messageData, function($message) use($email){
+            Mail::send('emails.order', $messageData, function($message) use($email){
               $message->to($email)->subject('Order Placed');
              });
-            /* code for order email ends */
-            //redirect user to thanks page after saving order
+            
+            #redirect user to thanks page after saving order
             return 'your order has placed';
            }
            else{
@@ -270,5 +269,14 @@ class OrderPlacement extends Controller
             return redirect('/paypal');
            }
         }
+    }
+
+    public function customerOrders()
+    {
+        $email = Session::get('customerSession');
+        $customer = Customer::where('email', $email)->first();
+
+        $orders = Order::with('orders')->where('customer_id',$customer->id)->orderBy('id', 'desc')->get();
+        return view('orders.customer_orders', compact('orders'));
     }
 }

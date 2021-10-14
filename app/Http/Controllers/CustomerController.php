@@ -99,7 +99,7 @@ class CustomerController extends Controller
                     $session_id = Session::get('session_id');
                     Cart::where('session_id', $session_id)->update(['user_email'=>$data['email']]);
                 }
-                return redirect('/cart');
+                return redirect('/');
             }
             else{
                 return back()->with('flash_message_error', 'Invalid Username or Password.');
@@ -112,5 +112,70 @@ class CustomerController extends Controller
     {
         Session::flush();
         return redirect('/login-register')->with('flash_message_success', 'Logged Out Successfully.');
+    }
+
+    #customer account settings
+    public function account(Request $request)
+    {
+        $email = Session::get('customerSession');
+        $customer = Customer::where('email', $email)->first();
+
+        if($request->isMethod('post'))
+        {
+            $customer = Customer::find($customer->id);
+            $customer->name = $request->name;
+            $customer->address = $request->address;
+            $customer->city = $request->city;
+            $customer->state = $request->state;
+            $customer->pincode = $request->pincode;
+            $customer->mobile = $request->mobile;
+
+            $customer->save();
+            return back()->with('flash_message_success', 'Account Info Updated.');
+        }
+
+      //for get request
+      return view('customers.account', compact('customer'));
+    }
+
+    #customer update password
+    public function checkUserPwd(Request $request)
+    {
+        $data = $request->all();
+        $current_password = $data['current_pwd'];
+    
+        $email = Session::get('customerSession');
+        $customer = Customer::where('email', $email)->first();
+
+        if(md5($current_password) == $customer->password)
+        {
+            echo "true"; die;
+        }else{
+            echo "false"; die;
+        }
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $data = $request->all();
+        $email = Session::get('customerSession');
+        $customer = Customer::where('email', $email)->first();
+
+        #checking customer new & confirm pwd
+        if($data['new_pwd'] != $data['confirm_pwd'])
+        {
+            return redirect('/account')->with('flash_message_error', 'Your new and confirm password are not correct.');
+        }
+
+        #checking user current pwd
+        if(md5($data['current_pwd'] , $customer->password))
+        {
+            $customer->password = md5($data['new_pwd']);
+            $customer->save();
+            return redirect('/account')->with('flash_message_success', 'Password has been updated.');
+        }
+        else{
+            return redirect('/account')->with('flash_message_error', 'Current Password is Incorrect.');
+        }
     }
 }

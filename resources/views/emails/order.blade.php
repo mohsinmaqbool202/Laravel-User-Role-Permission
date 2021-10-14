@@ -26,12 +26,12 @@
   				</tr>
   				@foreach($orderDetail->orders as $product)
   				<tr>
-  					<td>{{ $product->cart->name }}</td>
-  					<td>{{ $product->cart->code }}</td>
-  					<td>{{ $product->cart->size }}</td>
-  					<td>{{ $product->cart->color }}</td>
+  					<td>{{ $product->cart->product->name }}</td>
+  					<td>{{ $product->cart->product->code }}</td>
+  					<td>{{ $product->cart->product->size }}</td>
+  					<td>{{ $product->cart->product->color }}</td>
   					<td>{{ $product->cart->quantity }}</td>
-  					<td>{{ $product->cart->product_price }}</td>
+  					<td>{{ $product->cart->product->price }}</td>
   				</tr>
   				@endforeach
   				<tr>
@@ -56,22 +56,22 @@
 							 	<td><strong>Bill To</strong></td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->name }}</td>
+							 	<td>{{ $customer->name }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->address }}</td>
+							 	<td>{{ $customer->address }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->city }}</td>
+							 	<td>{{ $customer->city }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->state }}</td>
+							 	<td>{{ $customer->state }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->pincode }}</td>
+							 	<td>{{ $customer->pincode }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->mobile }}</td>
+							 	<td>{{ $customer->mobile }}</td>
 							 </tr>
 						</table>
 					</td>
@@ -81,22 +81,22 @@
 							 	<td><strong>Ship To</strong></td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->deliveryAddress->name }}</td>
+							 	<td>{{ $customer->deliveryAddress->name }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->deliveryAddress->address }}</td>
+							 	<td>{{ $customer->deliveryAddress->address }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->deliveryAddress->city }}</td>
+							 	<td>{{ $customer->deliveryAddress->city }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->deliveryAddress->state }}</td>
+							 	<td>{{ $customer->deliveryAddress->state }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->deliveryAddress->pincode }}</td>
+							 	<td>{{ $customer->deliveryAddress->pincode }}</td>
 							 </tr>
 							 <tr>
-							 	<td>{{ $user->deliveryAddress->mobile }}</td>
+							 	<td>{{ $customer->deliveryAddress->mobile }}</td>
 							 </tr>
 						</table>
 					</td>
