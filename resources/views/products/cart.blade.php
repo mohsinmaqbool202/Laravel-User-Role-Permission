@@ -51,15 +51,14 @@
 							</td>
 							<td class="cart_quantity">
 								<div class="cart_quantity_button">
-									<a class="cart_quantity_up" href="{{url('/cart/upadte-quantity/'.$cart->id.'/1')}}"> + </a>
-									<input class="cart_quantity_input" type="text" name="quantity" value="{{ $cart->quantity }}" autocomplete="off" size="2" readonly>
-									@if($cart->quantity > 1)
-									<a class="cart_quantity_down" href="{{url('/cart/upadte-quantity/'.$cart->id.'/-1')}}"> - </a>
-									@endif
+									<input type="hidden" id="cart_id" value="{{$cart->id}}">
+									<button class="cart_up">+</button>
+									<input class="cart_input text-center" type="text" name="quantity" value="{{ $cart->quantity }}" autocomplete="off" size="2" readonly>
+									<button class="cart_down">-</button>
 								</div>
 							</td>
 							<td class="cart_total">
-								<p class="cart_total_price">PKR:{{$cart->product->price * $cart->quantity  }}</p>
+								<p class="cart_total_price"><span>PKR:{{$cart->product->price * $cart->quantity  }}</span></p>
 							</td>
 							<td class="cart_delete">
 								<a class="cart_quantity_delete" href="{{ url('/cart/delete-product/'.$cart->id) }}"><i class="fa fa-times"></i></a>
@@ -82,11 +81,10 @@
 			<div class="col-sm-6">
 				<div class="total_area">
 					<ul>
-						<li>Grand Total <span class="btn-secondary" data-toggle="tooltip" data-html="true" 
-						title="">
+						<li>Grand Total <span class="btn-secondary">
 						 PKR {{$total_amount}}</span></li>
 					</ul>
-						<a class="btn btn-default update" href="{{url('/')}}">Update</a>
+						<a class="btn btn-default update" href="{{url('/')}}">Continue Shopping</a>
 						<a class="btn btn-default check_out" href="{{url('/checkout')}}">Check Out</a>
 				</div>
 			</div>

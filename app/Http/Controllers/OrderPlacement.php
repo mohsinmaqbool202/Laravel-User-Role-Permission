@@ -72,20 +72,55 @@ class OrderPlacement extends Controller
         return back()->with('flash_message_success', 'Product deleted from cart.');
     }
 
-    public function updateCartQuantity($id, $quantity)
+    public function updateCartQuantity(Request $request)
     {
-        $getCartDetails = Cart::find($id);
-        $ProductStock = Product::where('id', $getCartDetails->product_id)->value('stock');
         
-        $updated_quantity = $getCartDetails->quantity + $quantity;
-        if($ProductStock >= $updated_quantity)
+        $getCartDetails = Cart::find($request->cart_id);
+        $Product = Product::where('id', $getCartDetails->product_id)->first();
+        
+        $updated_quantity = $getCartDetails->quantity + $request->quantity;
+
+        #check ifupdated quantity ==0
+        if($updated_quantity == 0)
         {
-            Cart::where('id', $id)->increment('quantity', $quantity);
-            return back();
+            return $cartArr = [
+                'msg'         =>  'abcc',
+            ];
+
+            return $cartArr;
+        }
+
+        if($Product->stock >= $updated_quantity)
+        {
+            #update quantity
+            Cart::where('id', $request->cart_id)->increment('quantity', $request->quantity);
+
+            $session_id = Session::get('session_id');
+            $userCart = Cart::where('session_id', $session_id)->get();
+            $cartCount = Cart::where('session_id', $session_id)->sum('quantity');
+            $total_amount = 0;
+            foreach($userCart as $cart)
+            {
+                $total_amount += $cart->product->price * $cart->quantity;
+            }
+
+            $cartArr = [
+                'msg'         =>  true,
+                'quantity'    =>  $updated_quantity,
+                'sub_total'   => 'PKR:'.$updated_quantity * $Product->price,
+                'grand_total' => 'PKR:'.$total_amount,
+                'cart_count'  =>  $cartCount
+            ];
+
+            return $cartArr;
         }
         else
         {
-            return redirect('/cart')->with('flash_message_error','Required quantity is not available');
+            $cartArr = [
+                'msg'         =>  false,
+            ];
+
+            return $cartArr;
         }   
     }
 

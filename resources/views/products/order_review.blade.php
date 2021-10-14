@@ -102,11 +102,10 @@
 								</td>
 								<td class="cart_quantity">
 									<div class="cart_quantity_button">
-										<a class="cart_quantity_up" href="{{url('/cart/upadte-quantity/'.$cart->id.'/1')}}"> + </a>
-										<input class="cart_quantity_input" type="text" name="quantity" value="{{ $cart->quantity }}" autocomplete="off" size="2" readonly>
-										@if($cart->quantity > 1)
-										<a class="cart_quantity_down" href="{{url('/cart/upadte-quantity/'.$cart->id.'/-1')}}"> - </a>
-										@endif
+									    <input type="hidden" id="cart_id" value="{{$cart->id}}">
+										<button class="cart_up">+</button>
+									    <input class="cart_input text-center" type="text" name="quantity" value="{{ $cart->quantity }}" autocomplete="off" size="2" readonly>
+									    <button class="cart_down">-</button>
 									</div>
 								</td>
 								<td class="cart_total">
@@ -124,7 +123,7 @@
 									<table class="table table-condensed total-result">
 										<tr>
 											<td>Cart Sub Total</td>
-											<td>PKR {{ $total_amount }}</td>
+											<td><span class="btn-secondary">PKR {{ $total_amount }}</span></td>
 										</tr>
 										<tr>
 											<td>Shipping Cost(+)</td>
@@ -137,7 +136,7 @@
 										<tr>
 											<td>Grand Total</td>
 											<td>
-												<span>PKR {{$total_amount}}</span>
+												<span class="btn-secondary">PKR {{$total_amount}}</span>
 											</td>
 										</tr>
 									</table>

@@ -85,7 +85,8 @@ Route::match(['get', 'post'], '/cart', 'OrderPlacement@cart');
 Route::get('/cart/delete-product/{id}', 'OrderPlacement@deleteCartProduct');
 
 #update product quantity in cart
-Route::get('/cart/upadte-quantity/{id}/{quantity}', 'OrderPlacement@updateCartQuantity');
+// Route::get('/cart/upadte-quantity/{id}/{quantity}', 'OrderPlacement@updateCartQuantity');
+Route::get('/update-cart', 'OrderPlacement@updateCartQuantity');
 
 
 Route::group(['middleware' => ['frontlogin']], function(){

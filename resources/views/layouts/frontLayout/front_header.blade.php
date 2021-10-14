@@ -38,7 +38,7 @@
 					<div class="col-md-8 clearfix">
 						<div class="shop-menu clearfix pull-right">
 							<ul class="nav navbar-nav">
-								<li><a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i> Cart ({{$cartCount}})</a></li>
+								<li><a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i> <span class="shopping-cart">Cart</span></a></li>
 								@if(Session::get('customerSession') != null)
 								<li><a href="{{url('/orders')}}"><i class="fa fa-crosshairs"></i> Orders</a></li>
 								<li><a href="{{ route('account.setting') }}"><i class="fa fa-user"></i> Account</a></li>

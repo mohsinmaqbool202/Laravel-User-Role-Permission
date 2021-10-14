@@ -111,4 +111,66 @@ $(document).ready(function(){
         });
     });
 
+
+    //update cart 
+    $(".cart_up").click(function(){
+        var _this = $(this);
+        var cart_id = $(this).closest('.cart_quantity_button').find('#cart_id').val();
+        var quantity = 1;
+        var type = 'increment';
+       $.ajax({
+            type:'get',
+            url:'/update-cart',
+            data:{cart_id:cart_id, quantity:quantity, type:type},
+            success:function(resp){
+
+                if(resp.msg)
+                {
+                    _this.closest(".cart_quantity_button").find(".cart_input").val(resp.quantity);
+                    _this.closest(".cart_quantity").next(".cart_total").find(".cart_total_price").text(resp.sub_total);
+                    $(".btn-secondary").text(resp.grand_total); 
+                }
+                else{
+                    alert('requested quantity is greater than available quantity');
+                }
+
+            },error:function()
+            {
+                alert("error");
+            }
+        }); 
+    });
+
+    $(".cart_down").click(function(){
+        var _this = $(this);
+        var cart_id = $(this).closest('.cart_quantity_button').find('#cart_id').val();
+        var quantity = -1;
+        var type = 'decrement';
+       $.ajax({
+            type:'get',
+            url:'/update-cart',
+            data:{cart_id:cart_id, quantity:quantity, type:type},
+            success:function(resp){
+                if(resp.msg == true)
+                {
+                    _this.closest(".cart_quantity_button").find(".cart_input").val(resp.quantity);
+                    _this.closest(".cart_quantity").next(".cart_total").find(".cart_total_price").text(resp.sub_total);
+                    $(".btn-secondary").text(resp.grand_total); 
+                    $(".shopping-cart").text(resp.cart_count); 
+
+                }
+                else if(resp.msg == false){
+                    alert('requested quantity is greater than available quantity');
+                }else
+                {
+                    alert('Quantity can not be less than 1');
+                }
+
+            },error:function()
+            {
+                alert("error");
+            }
+        }); 
+    });
+
 });
