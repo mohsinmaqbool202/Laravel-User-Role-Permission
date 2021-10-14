@@ -36,9 +36,17 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::resource('roles','RoleController');
     Route::resource('users','UserController');
+    #upload multiple images of product
     Route::match(['get','post'], 'products/store-multiple-images/{product_id}', 'ProductController@storeMultipleImages')->name('product.store-multiple-images');
+    #delete img of product
     Route::get('products/delete-image/{id}','ProductController@deleteImage')->name('products.delete-image');
     Route::resource('products','ProductController');
+    #view all customers
+    Route::get('/all-customers','CustomerController@viewCustomers')->name('all.customers');
+
+    #view orders route
+    Route::get('/all-orders', 'OrderPlacement@viewOrders')->name('all.orders');
+    // Route::get('/view-order/{id}', 'OrderPlacement@viewOrderDetail');
 
 });
 

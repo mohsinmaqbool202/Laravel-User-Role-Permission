@@ -22,7 +22,8 @@ class PermissionTableSeeder extends Seeder
            'product-edit',
            'product-delete',
            'store-multiple-images',
-           'delete-image'
+           'delete-image',
+           'view-all-orders',
 
         ];
 

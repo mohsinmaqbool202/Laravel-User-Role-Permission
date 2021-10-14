@@ -12,6 +12,11 @@ use App\Cart;
 
 class CustomerController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:view-all-customers', ['only' => ['viewCustomers']]);
+    }
+
     public function customerLoginRegister()
     {
         return view('customers.login-register');
@@ -177,5 +182,13 @@ class CustomerController extends Controller
         else{
             return redirect('/account')->with('flash_message_error', 'Current Password is Incorrect.');
         }
+    }
+
+    #show all customers on admin dash
+    public function viewCustomers(Request $request)
+    {
+        $customers = Customer::orderBy('id','DESC')->paginate(5);
+        return view('admin.customers.view_customers', compact('customers'))
+                                            ->with('i', ($request->input('page', 1) - 1) * 5);;
     }
 }

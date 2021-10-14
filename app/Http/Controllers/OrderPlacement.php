@@ -14,6 +14,12 @@ use Mail;
 
 class OrderPlacement extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:view-all-orders', ['only' => ['viewOrders']]);
+    }
+
+
     public function addtocart(Request $request)
     {
         #Check if Requested Quantity is available in stock or not
@@ -278,5 +284,37 @@ class OrderPlacement extends Controller
 
         $orders = Order::with('orders')->where('customer_id',$customer->id)->orderBy('id', 'desc')->get();
         return view('orders.customer_orders', compact('orders'));
+    }
+
+    #show all orders on admin dashboard
+    public function viewOrders(Request $request)
+    {
+        $orders = Order::with('orders')->orderBy('id', 'desc')->paginate();
+        // dd($orders);
+        return view('admin.orders.view_orders', compact('orders'))
+                                            ->with('i', ($request->input('page', 1) - 1) * 5);
+    }
+
+    static public function orderStatus($id)
+    {
+        $status = Order::find($id)->order_status;
+        switch ($status) {
+            case 1:
+                return "New";
+                break;
+            case 2:
+                return "Shipped";
+                break;
+            case 3:
+                return "Delivered";
+                break;
+            case 4:
+                return "Cancelled";
+                break;
+            
+            default:
+                return "New";
+                break;
+        }
     }
 }

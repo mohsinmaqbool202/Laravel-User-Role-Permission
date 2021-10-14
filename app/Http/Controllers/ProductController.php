@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Input;
 class ProductController extends Controller
 {
 
-     function __construct()
+    function __construct()
     {
         $this->middleware('permission:product-list|product-create|product-edit|product-delete|store-multiple-images', ['only' => ['index','show']]);
         $this->middleware('permission:product-create', ['only' => ['create','store']]);
