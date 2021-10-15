@@ -82,7 +82,7 @@ Route::post('/add-to-cart', 'OrderPlacement@addtocart')->name('add.cart');
 Route::match(['get', 'post'], '/cart', 'OrderPlacement@cart');
 
 #Delete cart items route
-Route::get('/cart/delete-product/{id}', 'OrderPlacement@deleteCartProduct');
+Route::get('/cart/delete-product', 'OrderPlacement@deleteCartProduct')->name('remove.from.cart');
 
 #update product quantity in cart
 // Route::get('/cart/upadte-quantity/{id}/{quantity}', 'OrderPlacement@updateCartQuantity');

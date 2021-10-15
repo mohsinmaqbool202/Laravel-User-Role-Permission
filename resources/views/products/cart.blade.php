@@ -1,5 +1,6 @@
 <?php
 	use App\Product;
+	// dd(session('cart'));
 ?>
 @extends('layouts.frontLayout.front_design')
 @section('content')
@@ -37,35 +38,36 @@
 					</thead>
 					<tbody>
 						@php $total_amount = 0; @endphp
-						@foreach($userCart as $cart)
-						<tr>
+						@if(session('cart'))
+						@foreach(session('cart') as $id => $cart)
+						<tr class="parent-div">
 							<td class="cart_product">
-								<a href=""><img src="{{ asset('/images/backend_images/products/'.$cart->product->image) }}" alt="" width="70px;"></a>
+								<a href=""><img src="{{ asset('/images/backend_images/products/'.$cart['image']) }}" alt="" width="70px;"></a>
 							</td>
 							<td class="cart_description">
-								<h4><a href="">{{$cart->product->name}}</a></h4>
-								<p>{{$cart->product->code}}</p>
+								<p>{{ $cart['name'] }}</p>
 							</td>
 							<td class="cart_price">
-								<p>PKR:{{$cart->product->price}}</p>
+								<p>PKR:{{ $cart['price'] }}</p>
 							</td>
 							<td class="cart_quantity">
 								<div class="cart_quantity_button">
-									<input type="hidden" id="cart_id" value="{{$cart->id}}">
+									<input type="hidden" id="cart_id" value="{{$id}}">
 									<button class="cart_up">+</button>
-									<input class="cart_input text-center" type="text" name="quantity" value="{{ $cart->quantity }}" autocomplete="off" size="2" readonly>
+									<input class="cart_input text-center" type="text" name="quantity" value="{{ $cart['quantity'] }}" autocomplete="off" size="2" readonly>
 									<button class="cart_down">-</button>
 								</div>
 							</td>
 							<td class="cart_total">
-								<p class="cart_total_price"><span>PKR:{{$cart->product->price * $cart->quantity  }}</span></p>
+								<p class="cart_total_price"><span>PKR:{{$cart['price'] * $cart['quantity']  }}</span></p>
 							</td>
-							<td class="cart_delete">
-								<a class="cart_quantity_delete" href="{{ url('/cart/delete-product/'.$cart->id) }}"><i class="fa fa-times"></i></a>
+							<td>
+								<button class="btn btn-danger btn-sm remove-from-cart"><i class="fa fa-trash-o"></i></button>
 							</td>
 						</tr>
-						@php $total_amount += ($cart->product->price * $cart->quantity); @endphp
+						@php $total_amount += ($cart['price'] * $cart['quantity']); @endphp
 						@endforeach
+						@endif
 					</tbody>
 				</table>
 			</div>
@@ -85,7 +87,9 @@
 						 PKR {{$total_amount}}</span></li>
 					</ul>
 						<a class="btn btn-default update" href="{{url('/')}}">Continue Shopping</a>
+						@if(count((array) session('cart')) > 0)
 						<a class="btn btn-default check_out" href="{{url('/checkout')}}">Check Out</a>
+						@endif
 				</div>
 			</div>
 		</div>

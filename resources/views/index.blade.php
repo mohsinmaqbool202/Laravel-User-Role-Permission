@@ -1,73 +1,23 @@
+<?php
+use App\Http\Controllers\IndexController;
+?>
 @extends('layouts.frontLayout.front_design')
 @section('content')
-	{{--<section id="slider"><!--slider-->
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-12">
-					<div id="slider-carousel" class="carousel slide" data-ride="carousel">
-						<ol class="carousel-indicators">
-							<li data-target="#slider-carousel" data-slide-to="0" class="active"></li>
-							<li data-target="#slider-carousel" data-slide-to="1"></li>
-							<li data-target="#slider-carousel" data-slide-to="2"></li>
-						</ol>
-						
-						<div class="carousel-inner">
-							<div class="item active">
-								<div class="col-sm-6">
-									<h1><span>E</span>-SHOPPER</h1>
-									<h2>Free E-Commerce Template</h2>
-									<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-									<button type="button" class="btn btn-default get">Get it now</button>
-								</div>
-								<div class="col-sm-6">
-									<img src="images/home/girl1.jpg" class="girl img-responsive" alt="" />
-									<img src="images/home/pricing.png"  class="pricing" alt="" />
-								</div>
-							</div>
-							<div class="item">
-								<div class="col-sm-6">
-									<h1><span>E</span>-SHOPPER</h1>
-									<h2>100% Responsive Design</h2>
-									<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-									<button type="button" class="btn btn-default get">Get it now</button>
-								</div>
-								<div class="col-sm-6">
-									<img src="images/home/girl2.jpg" class="girl img-responsive" alt="" />
-									<img src="images/home/pricing.png"  class="pricing" alt="" />
-								</div>
-							</div>
-							
-							<div class="item">
-								<div class="col-sm-6">
-									<h1><span>E</span>-SHOPPER</h1>
-									<h2>Free Ecommerce Template</h2>
-									<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
-									<button type="button" class="btn btn-default get">Get it now</button>
-								</div>
-								<div class="col-sm-6">
-									<img src="images/home/girl3.jpg" class="girl img-responsive" alt="" />
-									<img src="images/home/pricing.png" class="pricing" alt="" />
-								</div>
-							</div>
-							
-						</div>
-						
-						<a href="#slider-carousel" class="left control-carousel hidden-xs" data-slide="prev">
-							<i class="fa fa-angle-left"></i>
-						</a>
-						<a href="#slider-carousel" class="right control-carousel hidden-xs" data-slide="next">
-							<i class="fa fa-angle-right"></i>
-						</a>
-					</div>
-					
-				</div>
-			</div>
-		</div>
-	</section>--}}
-	
 	<section>
 		<div class="container">
 			<div class="row">
+				@if(Session::has('flash_message_error'))  
+		        <div class="alert alert-error alert-block" style="background-color: #f2dfd0;">
+		            <button type="button" class="close" data-dismiss="alert">x</button>
+		            <strong>{{ session::get('flash_message_error') }}</strong>
+		        </div>
+		   		@endif
+		   		@if(Session::has('flash_message_success'))  
+		        <div class="alert alert-success alert-block" style="background-color: #f2dfd0;">
+		            <button type="button" class="close" data-dismiss="alert">x</button>
+		            <strong>{{ session::get('flash_message_success') }}</strong>
+		        </div>
+		   		 @endif
 				{{--<div class="col-sm-3">
 					<div class="left-sidebar">
 						<h2>Category</h2>
@@ -220,27 +170,41 @@
 										<img src="{{ asset('/images/backend_images/products/'.$product->image) }}" alt="" style="height: 250px;" />
 										<h2>PKR:{{ $product->price }}</h2>
 										<p>{{ $product->name }}</p>
-										<a href="{{ route('product.detail', $product->id) }}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
 									</div>
 									<div class="product-overlay">
 										<div class="overlay-content">
 											<h2>PKR:{{ $product->price }}</h2>
 											<p>{{ $product->name }}</p>
-											<a href="{{ route('product.detail', $product->id) }}" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
+											<form name="addtocartForm" id="addtocartForm" action="{{ route('add.cart') }}" method="post">
+												@csrf
+												<input type="hidden" name="quantity"    value="1">
+												<input type="hidden" name="product_id"    value="{{ $product->id }}">
+							                    <input type="hidden" name="user_email"    value="{{Session::get('customerSession')}}">
+							                    <button type="submit" class="btn btn-default add-to-cart">
+										        <i class="fa fa-shopping-cart"></i>
+										            Add to cart
+									            </button>
+									            <a href="{{ route('product.detail', $product->id) }}" class="btn btn-default add-to-cart"><i class="fa fa-eye"></i>View Detail</a>
+										    </form>
 										</div>
 									</div>
 								</div>
+								@php
+									$wish_list_status = IndexController::CheckInWishlist($product->id);
+								@endphp
+								@if(!$wish_list_status)
 								<div class="choose">
 									<ul class="nav nav-pills nav-justified">
 										<li>
 											<form action="javascript::void(0);" class="wishlist_form text-center">
 											<input type="hidden" name="user_email" value="{{Session::get('customerSession')}}">
 											<input type="hidden" name="product_id" value="{{$product->id}}">
-											<a href="javascript::void(0);" class="addToWishList"><i class="fa fa-plus-square"></i>Add to wishlist</a>
+											<a href="#" class="addToWishList"><i class="fa fa-plus-square"></i>Add to wishlist</a>
 										    </form>
 										</li>
 									</ul>
 								</div>
+								@endif
 							</div>
 						</div>
 						@endforeach

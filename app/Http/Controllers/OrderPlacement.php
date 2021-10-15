@@ -21,7 +21,7 @@ class OrderPlacement extends Controller
 
 
     public function addtocart(Request $request)
-    {
+    {   
         #Check if Requested Quantity is available in stock or not
         $checkStock = Product::where('id',$request->product_id)->first();
 
@@ -49,10 +49,26 @@ class OrderPlacement extends Controller
             return back()->with('flash_message_error', 'Product already exist in cart.');
         }
         else{
-            Cart::create($request->all());
-            return redirect('/cart')->with('flash_message_success', 'Product added to cart.');
+
+            $cartItem = Cart::create($request->all());
+            
+            $cart = session()->get('cart', []);
+  
+            if(isset($cart[$cartItem->id])) {
+                $cart[$id]['quantity']++;
+            } else {
+                $cart[$cartItem->id] = [
+                    "name"     => $checkStock->name,
+                    "quantity" => $cartItem->quantity,
+                    "price"    => $checkStock->price,
+                    "image"    => $checkStock->image
+                ];
+            }
+            session()->put('cart', $cart);
+            return redirect()->back()->with('flash_message_success', 'Product added to cart.');
         }
     }
+
 
     public function cart()
     {
@@ -61,15 +77,19 @@ class OrderPlacement extends Controller
         return view('products.cart', compact('userCart'));
     }
 
-    public function deleteCartProduct($cart_id)
+    public function deleteCartProduct(Request $request)
     {
-        $cart = Cart::find($cart_id);
-        if(!$cart){
-            abort(404);
-        }
+        $cartItem = Cart::find($request->cart_id);
+        $cartItem->delete();
 
-        $cart->delete();
-        return back()->with('flash_message_success', 'Product deleted from cart.');
+        if($request->cart_id) {
+            $cart = session()->get('cart');
+            if(isset($cart[$request->cart_id])) {
+                unset($cart[$request->cart_id]);
+                session()->put('cart', $cart);
+            }
+            session()->flash('flash_message_success', 'Product removed successfully');
+        }
     }
 
     public function updateCartQuantity(Request $request)
@@ -280,7 +300,8 @@ class OrderPlacement extends Controller
 
             //removin session values
             Session::forget('session_id');
-
+            Session::forget('cart');
+            
             Session::put('order_id', $order->id);
             Session::put('grand_total', $request->grand_total);
 

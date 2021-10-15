@@ -7,7 +7,7 @@ use Session;
 
 class Cart extends Model
 {
-    protected $fillable = ['product_id', 'quantity', 'customer_email', 'session_id'];
+    protected $fillable = ['product_id', 'quantity', 'user_email', 'session_id'];
 
     public function product()
     {

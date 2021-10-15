@@ -18,6 +18,12 @@
 		            <button type="button" class="close" data-dismiss="alert">x</button>
 		            <strong>{{ session::get('flash_message_error') }}</strong>
 		        </div>
+		    @endif
+		    @if(Session::has('flash_message_success'))  
+		        <div class="alert alert-success alert-block" style="background-color: #f2dfd0;">
+		            <button type="button" class="close" data-dismiss="alert">x</button>
+		            <strong>{{ session::get('flash_message_success') }}</strong>
+		        </div>
 		    @endif 
 			<div class="col-sm-12 padding-right">
 				<div class="product-details"><!--product-details-->
@@ -38,6 +44,7 @@
 					<div class="col-sm-6">
 						<form name="addtocartForm" id="addtocartForm" action="{{ route('add.cart') }}" method="post">
 							{{ csrf_field() }}
+							<input type="hidden" name="quantity"    value="1">
 							<input type="hidden" name="product_id"    value="{{ $productDetail->id }}">
 							<input type="hidden" name="user_email"    value="{{Session::get('customerSession')}}">
 							<div class="product-information"><!--/product-information-->
@@ -47,16 +54,14 @@
 								<p><b>Color:</b> {{ $productDetail->color }}</p>
 								<p><b>Price:</b> PKR {{ $productDetail->price }}</p>
 								<p><b>Available Stock:</b>
-								  @if($productDetail->stock) 
+								    @if($productDetail->stock) 
 								  	    {{$productDetail->stock}} Items 
 								  	@else
-								  		Out Of Stock
+								  		Out of Stock
 								  	@endif
 								</p>
 								<p><b>Condition:</b> New</p>
 								<span>
-									<label>Quantity:</label>
-									<input type="text" name="quantity" value="1" />
 									@if($productDetail->stock)
 									<button type="submit" class="btn btn-fefault cart" id="cartButton">
 										<i class="fa fa-shopping-cart"></i>

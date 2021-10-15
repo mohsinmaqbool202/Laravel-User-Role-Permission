@@ -12,7 +12,7 @@ use Session;
 class IndexController extends Controller
 {
     public function index()
-    {
+    {   
         $products = Product::all();
         return view('index', compact('products'));
     }
@@ -61,5 +61,14 @@ class IndexController extends Controller
 
         $wish->delete();
         return back()->with('flash_message_success', 'Product has been removed from your wishlist');
+    }
+
+    public static function CheckInWishlist($p_id)
+    {
+        $user_email = Session::get('customerSession');
+        return   WishList::where([
+                                    ['product_id', $p_id],
+                                    ['user_email',$user_email]
+                                ])->count();
     }
 }

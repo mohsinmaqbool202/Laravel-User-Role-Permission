@@ -24,7 +24,7 @@ class PermissionTableSeeder extends Seeder
            'store-multiple-images',
            'delete-image',
            'view-all-orders',
-
+           'view-all-customers'
         ];
 
 

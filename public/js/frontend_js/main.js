@@ -36,7 +36,7 @@ $(document).ready(function () {
 $(document).ready(function(){
 
     $(".addToWishList").click(function(){
-
+        var _this = $(this);
         var form_data = $(this).closest(".wishlist_form").serializeArray();
         var user_email = form_data[0].value;
         var product_id = form_data[1].value
@@ -57,7 +57,9 @@ $(document).ready(function(){
                     alert('Product is already in your wishlist');
                     // toastr.info("Product is already in your wishlist.", "info");
                 }else{
+
                     alert('Product added to your wishlist.');
+                    _this.hide();
                    // toastr.success("Product added to your wishlist.", "Success");
                 }
             },
@@ -171,6 +173,28 @@ $(document).ready(function(){
                 alert("error");
             }
         }); 
+    });
+
+    //remove item form cart
+    $(".remove-from-cart").click(function (e) {
+        
+        e.preventDefault();
+        var cart_id = $(this).parents(".parent-div").find('#cart_id').val();
+
+        var ele = $(this);
+        $.ajax({
+            url: '/cart/delete-product',
+            type: "get",
+            data: {
+                cart_id: cart_id 
+            },
+            success: function (response) {
+                console.log(response);
+                // window.location.reload();
+            },error:function(){
+                alert('error occured.');
+            }
+        });
     });
 
 });

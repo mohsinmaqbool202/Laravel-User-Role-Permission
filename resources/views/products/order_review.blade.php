@@ -88,34 +88,33 @@
 					</thead>
 					<tbody>
 						@php $total_amount = 0; @endphp
-						@foreach($customerCart as $cart)
-							<tr>
+						@foreach(session('cart') as $id => $cart)
+							<tr class="parent-div">
 								<td class="cart_product">
-									<a href=""><img src="{{ asset('/images/backend_images/products/'.$cart->product->image) }}" alt="" width="70px;"></a>
+									<a href=""><img src="{{ asset('/images/backend_images/products/'.$cart['image']) }}" alt="" width="70px;"></a>
 								</td>
 								<td class="cart_description">
-								  <h4><a href="">{{$cart->product->name}}</a></h4>
-								  <p>{{$cart->product->code }}</p>
+								  <h4><a href="">{{$cart['name']}}</a></h4>
 							  </td>
 								<td class="cart_price">
-								<p>PKR:{{$cart->product->price}}</p>
+								<p>PKR:{{ $cart['price'] }}</p>
 								</td>
 								<td class="cart_quantity">
 									<div class="cart_quantity_button">
-									    <input type="hidden" id="cart_id" value="{{$cart->id}}">
+									    <input type="hidden" id="cart_id" value="{{$id}}">
 										<button class="cart_up">+</button>
-									    <input class="cart_input text-center" type="text" name="quantity" value="{{ $cart->quantity }}" autocomplete="off" size="2" readonly>
+									    <input class="cart_input text-center" type="text" name="quantity" value="{{ $cart['quantity'] }}" autocomplete="off" size="2" readonly>
 									    <button class="cart_down">-</button>
 									</div>
 								</td>
 								<td class="cart_total">
-									<p class="cart_total_price">PKR:{{ $cart->product->price * $cart->quantity  }}</p>
+									<p class="cart_total_price">PKR:{{ $cart['price'] * $cart['quantity']  }}</p>
 								</td>
-								<td class="cart_delete">
-									<a class="cart_quantity_delete" href="{{ url('/cart/delete-product/'.$cart->id) }}"><i class="fa fa-times"></i></a>
+								<td>
+									<button class="btn btn-danger btn-sm remove-from-cart"><i class="fa fa-trash-o"></i></button>
 								</td>
 							</tr>
-							@php $total_amount += ($cart->product->price * $cart->quantity); @endphp
+							@php $total_amount += ($cart['price'] * $cart['quantity']); @endphp
 						@endforeach
 							<tr>
 								<td colspan="4">&nbsp;</td>
@@ -145,6 +144,7 @@
 					</tbody>
 				</table>
 			</div>
+			@if(count((array) session('cart')) > 0)
 			<form method="post" action="{{url('place-order')}}" name="paymentForm" id="paymentForm">
 				{{ csrf_field() }}
 				<input type="hidden" name="grand_total" value="{{ $total_amount }}">
@@ -163,6 +163,7 @@
 					</span>
 				</div>
 			</form>
+			@endif
 		</div>
 	</section> <!--/#cart_items-->
 
