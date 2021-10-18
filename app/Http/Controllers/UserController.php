@@ -5,12 +5,80 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+Use App\VerifyUser;
 use Spatie\Permission\Models\Role;
 use DB;
 use Hash;
+use Response;
+use Validator;
+use Auth;
+use Carbon\Carbon;
+
 
 class UserController extends Controller
 {
+
+    public function signup(Request $request)
+    {
+
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|confirmed'
+        ]);
+        $user = new User([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'verified' => 1
+        ]);
+        $user->save();
+
+        VerifyUser::create([
+            'user_id' => $user->id,
+            'token' => sha1(time())
+        ]);
+
+        return response()->json([
+            'message' => 'Successfully created user!'
+        ], 201);
+    }
+
+
+    public function login(Request $request)
+    {
+
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        $credentials = request(['email', 'password']);
+
+        if(!Auth::attempt($credentials))
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+
+        $user = $request->user();
+
+        $accessToken = $user->createToken('authToken')->accessToken;
+
+        return response()->json([
+            'user'   => $user,
+            'access_token' => $accessToken,
+            'token_type' => 'Bearer'
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->token()->revoke();
+        return response()->json([
+            'message' => 'Successfully logged out'
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,9 +86,20 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $data = User::orderBy('id','DESC')->paginate(5);
-        return view('admin.users.index',compact('data'))
+        #for api route
+        if (\Request::is('api*')) {
+            
+            $data = User::orderBy('id','DESC')->get();
+            return Response::json(['error'=>'false', 'data'=>$data]);
+        }
+        else{
+            #for web route
+            $data = User::orderBy('id','DESC')->paginate(5);
+            return view('admin.users.index',compact('data'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
+        }
+
+        
     }
 
     /**
@@ -30,6 +109,7 @@ class UserController extends Controller
      */
     public function create()
     {
+
         $roles = Role::pluck('name','name')->all();
         return view('admin.users.create',compact('roles'));
     }
@@ -42,24 +122,52 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
-            'roles' => 'required'
-        ]);
+        // $rules = [ 
+        //     'name' => 'required',
+        //     'email' => 'required|email|unique:users,email',
+        //     'password' => 'required|same:confirm-password',
+        //     'roles' => 'required'
+        // ];
+
+        // $validator = Validator::make($request->all(), $rules);
+
+        // if($validator->passes())
+        // {
+            $input = $request->all();
+            $input['password'] = Hash::make($input['password']);
+            $input['verified'] = 1;
 
 
-        $input = $request->all();
-        $input['password'] = Hash::make($input['password']);
+            $user = User::create($input);
+            $user->assignRole($request->input('roles'));
 
+            VerifyUser::create([
+                'user_id' => $user->id,
+                'token' => sha1(time())
+            ]);
 
-        $user = User::create($input);
-        $user->assignRole($request->input('roles'));
-
-
-        return redirect()->route('users.index')
+            if($user)
+            {
+                #for api&web route handlig
+                if (\Request::is('api*')) {
+                    return Response::json(['error'=>'false', 'msg'=>'User added successfully']);
+                }else{
+                    #for web route
+                    return redirect()->route('users.index')
                         ->with('success','User created successfully');
+                }  
+            }
+            else
+            {
+                return Response::json(['error'=>'true', 'msg'=>'something went wrong try again']);
+            } 
+        // }
+        // else
+        // {
+        //     return Response::json(['error'=>'true', 'msg'=>'required fields are missing']);
+
+        // }
+
     }
 
     /**
@@ -69,9 +177,16 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
+    {   
         $user = User::find($id);
-        return view('admin.users.show',compact('user'));
+        #for api route
+        if (\Request::is('api*')) {
+            return Response::json(['error'=>'false', 'data'=>$user]);
+        }
+        else{
+            return view('admin.users.show',compact('user'));
+
+        }
     }
 
     /**
@@ -134,9 +249,29 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        User::find($id)->delete();
-        return redirect()->route('users.index')
+    {   
+        #for api route
+        if (\Request::is('api*')) {
+            $user = User::find($id);
+            if(!$user)
+            {
+                return Response::json(['error'=>'true', 'msg'=>'No such user found']);
+            }
+
+            $user->delete();
+            return Response::json(['error'=>'false', 'msg'=>'User deleted successfully']);
+        }
+        else{
+            $user = User::find($id);
+            if(!$user)
+            {
+                abort(404);
+            }
+
+            $user->delete();
+            return redirect()->route('users.index')
                         ->with('success','User deleted successfully');
+        }
+        
     }
 }

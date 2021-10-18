@@ -76,7 +76,7 @@ Route::post('/customer-login', 'CustomerController@login');
 Route::get('/customer-logout', 'CustomerController@logout');
 
 #Add-to-cart routes
-Route::post('/add-to-cart', 'OrderPlacement@addtocart')->name('add.cart');
+Route::get('/add-to-cart', 'OrderPlacement@addtocart');
 
 #cart page route
 Route::match(['get', 'post'], '/cart', 'OrderPlacement@cart');

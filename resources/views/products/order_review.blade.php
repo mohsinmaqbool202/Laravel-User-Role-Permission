@@ -145,7 +145,7 @@
 				</table>
 			</div>
 			@if(count((array) session('cart')) > 0)
-			<form method="post" action="{{url('place-order')}}" name="paymentForm" id="paymentForm">
+			<form method="post" action="{{url('place-order')}}" name="paymentForm" id="paymentForm" class="hiding">
 				{{ csrf_field() }}
 				<input type="hidden" name="grand_total" value="{{ $total_amount }}">
 				<!-- <input type="hidden" name="coupon_code" value="{{ Session::get('CouponCode') }}"> -->

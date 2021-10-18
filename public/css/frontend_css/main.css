@@ -849,14 +849,14 @@ h2.title {
 .productinfo h2 {
     color: #FE980F;
     font-family: 'Roboto', sans-serif;
-    font-size: 24px;
+    font-size: 16px;
     font-weight: 700;
 }
 
 .product-overlay h2 {
     color: #fff;
     font-family: 'Roboto', sans-serif;
-    font-size: 24px;
+    font-size: 15px;
     font-weight: 700;
 }
 
@@ -906,7 +906,7 @@ h2.title {
     border-radius: 0;
     color: #FE980F;
     font-family: 'Roboto', sans-serif;
-    font-size: 15px;
+    font-size: 9px;
     margin-bottom: 25px;
 }
 
@@ -1148,7 +1148,7 @@ h2.title {
 .product-details {
     margin-bottom: 40px;
     overflow: hidden;
-    margin-top: 10px;
+    margin-top: 0px;
 }
 
 .view-product {

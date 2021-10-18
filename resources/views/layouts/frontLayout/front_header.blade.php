@@ -37,12 +37,9 @@
 						<div class="shop-menu clearfix pull-right">
 							<ul class="nav navbar-nav">
 								<li>
-									<a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i>Cart<span class="badge badge-danger"></span>({{ count((array) session('cart')) }})</a>
+									<a href="{{ url('/cart') }}"><i class="fa fa-shopping-cart"></i><span class="cart-total">Cart({{ count((array) session('cart')) }})</span></a>
 								</li>
 								@if(Session::get('customerSession') != null)
-								<li><a href="{{url('/orders')}}"><i class="fa fa-crosshairs"></i> Orders</a></li>
-								<li><a href="{{ route('account.setting') }}"><i class="fa fa-user"></i> Account</a></li>
-								<li><a href="{{url('/wish-list')}}"><i class="fa fa-star"></i> Wishlist</a></li>
 								<li><a href="{{ url('/customer-logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
 								@else
 								<li><a href="{{ url('/login-register') }}"><i class="fa fa-lock"></i> Login</a></li>

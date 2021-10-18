@@ -88,7 +88,7 @@
 					</ul>
 						<a class="btn btn-default update" href="{{url('/')}}">Continue Shopping</a>
 						@if(count((array) session('cart')) > 0)
-						<a class="btn btn-default check_out" href="{{url('/checkout')}}">Check Out</a>
+						<a class="btn btn-default check_out hiding" href="{{url('/checkout')}}">Check Out</a>
 						@endif
 				</div>
 			</div>

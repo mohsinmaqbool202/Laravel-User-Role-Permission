@@ -22,12 +22,18 @@ class OrderPlacement extends Controller
 
     public function addtocart(Request $request)
     {   
+
         #Check if Requested Quantity is available in stock or not
         $checkStock = Product::where('id',$request->product_id)->first();
 
         if($request->quantity > $checkStock->stock)
         {
-            return back()->with('flash_message_error', 'Sorry! Required quantity is not available.');
+            $resp = [
+
+                'cart_count' => 'Cart('.count((array) session('cart')).')',
+                'msg'        => 'Requested quantity is not available.'
+            ];
+            return $resp;
         }
 
         #Saving session_id to Session
@@ -46,7 +52,12 @@ class OrderPlacement extends Controller
         $checkCart = Cart::where('product_id', $request->product_id)->where('session_id',$session_id)->count();
 
         if($checkCart > 0){
-            return back()->with('flash_message_error', 'Product already exist in cart.');
+            $resp = [
+
+                'cart_count' => 'Cart('.count((array) session('cart')).')',
+                'msg'        => 'Product already exist in cart.'
+            ];
+            return $resp;
         }
         else{
 
@@ -65,13 +76,20 @@ class OrderPlacement extends Controller
                 ];
             }
             session()->put('cart', $cart);
-            return redirect()->back()->with('flash_message_success', 'Product added to cart.');
+            
+
+            $resp = [
+
+                'cart_count' => 'Cart('.count((array) session('cart')).')',
+                'msg'        => 'Product added to cart.'
+            ];
+            return $resp;
         }
     }
 
 
     public function cart()
-    {
+    {   
         $session_id = Session::get('session_id');
         $userCart = Cart::where('session_id', $session_id)->get();
         return view('products.cart', compact('userCart'));
@@ -79,6 +97,7 @@ class OrderPlacement extends Controller
 
     public function deleteCartProduct(Request $request)
     {
+
         $cartItem = Cart::find($request->cart_id);
         $cartItem->delete();
 
@@ -88,7 +107,23 @@ class OrderPlacement extends Controller
                 unset($cart[$request->cart_id]);
                 session()->put('cart', $cart);
             }
-            session()->flash('flash_message_success', 'Product removed successfully');
+            // session()->flash('flash_message_success', 'Product removed successfully');
+
+            $session_id = Session::get('session_id');
+            $userCart = Cart::where('session_id', $session_id)->get();
+            $total_amount = 0;
+            foreach($userCart as $cart)
+            {
+                $total_amount += $cart->product->price * $cart->quantity;
+            }
+
+            $resp = [
+                'msg'         =>  'product removed from cart',
+                'cart_count' => 'Cart('.count((array) session('cart')).')',
+                'grand_total' => 'PKR:'.$total_amount,
+            ];
+
+            return $resp;
         }
     }
 
@@ -301,7 +336,7 @@ class OrderPlacement extends Controller
             //removin session values
             Session::forget('session_id');
             Session::forget('cart');
-            
+
             Session::put('order_id', $order->id);
             Session::put('grand_total', $request->grand_total);
 
