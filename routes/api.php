@@ -19,17 +19,25 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
     
     Route::post('login', 'UserController@login');
-    Route::post('signup', 'UserController@signup');
+    // Route::post('signup', 'UserController@signup');
 
 
-Route::group(['middleware' => 'auth:api'], function() {
+// Route::group(['middleware' => 'auth:api'], function() {
 
-    Route::get('users', 'UserController@index');
-    Route::post('users/create', 'UserController@store');
-    Route::get('user/{id}', 'UserController@show');
-    Route::get('users/delete/{user}', 'UserController@destroy');
+    // Route::get('users', 'UserController@index');
+    // Route::post('users/create', 'UserController@store');
+    // Route::get('user/{id}', 'UserController@show');
+    // Route::get('users/delete/{user}', 'UserController@destroy');
 
-    Route::get('logout', 'UserController@logout');
+    // Route::get('logout', 'UserController@logout');
 
-});
+    // Route::get('/test-api-token', function(){
+    //     return 'Authenticated!';
+    // });
+
+// });
+
+
+
+#api routes for customer side
 
